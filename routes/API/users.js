@@ -51,6 +51,22 @@ async (req, res) => {
 
         await user.save();
 
+        const payload = {
+            user: {
+                id: user.id
+            }
+        };
+
+        jwt.sign(
+            payload,
+            config.get('jwtSecret'),
+            { expiresIn: 360000 },
+            (error, token) => {
+                if (error) throw error;
+                res.json({ token })
+            }
+        );
+
     } catch(e) {
         console.error(e.message);
         res.status(500).send('Server Error');
