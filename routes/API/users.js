@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
+const config = require('config')
+const jwt = require('jsonwebtoken');
+
 const { check, validationResult } = require('express-validator');
 
 const User = require('../../models/User');
@@ -48,8 +51,6 @@ async (req, res) => {
 
         await user.save();
 
-    //Return jsonwebtoken
-        res.send('User registered');
     } catch(e) {
         console.error(e.message);
         res.status(500).send('Server Error');
