@@ -104,56 +104,107 @@ async (req, res) => {
 //Get all profiles
 // public
 
-router.get('/', async (req, res) => {
-    try {
-        const profiles = await Profile.find().populate('user', ['name', 'avatar']);
-        res.json(profiles)
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Server Error')
-    }
+    router.get('/', async (req, res) => {
+        try {
+            const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+            res.json(profiles)
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).send('Server Error')
+        }
 });
 
 // Get api/profile/user/user_id
 // Get profile by user ID
 // public
 
-router.get('/user/:user_id', async (req, res) => {
-    try {
-        const profile = await Profile.findOne({ user: req.params.user_id }).populate('user', ['name', 'avatar']);
+    router.get('/user/:user_id', async (req, res) => {
+        try {
+            const profile = await Profile.findOne({ user: req.params.user_id }).   populate('user', ['name', 'avatar']);
 
-        if (!profile) return res.status(400).json({ msg: 'There is no profile for this user' });
+            if (!profile) return res.status(400).json({ msg: 'There is no profile for   this user' });
 
-        res.json(profile)
-    } catch (error) {
-        console.error(error.message);
-        if (error.kind == 'ObjectId') {
-            return res.status(400).json({ msg: 'Profile not found' })
+            res.json(profile)
+        } catch (error) {
+            console.error(error.message);
+            if (error.kind == 'ObjectId') {
+                return res.status(400).json({ msg: 'Profile not found' })
+            }
+            res.status(500).send('Server Error')
         }
-        res.status(500).send('Server Error')
-    }
 });
 
 // Delete api/profile
 // Delete profile, user & posts
 // Private
 
-router.delete('/', auth, async (req, res) => {
-    try {
-        // remove users posts
+    router.delete('/', auth, async (req, res) => {
+        try {
+            // remove users posts
 
 
-        // Removes profile
-        await Profile.findOneAndRemove({ user: req.user.id })
-        // Removes user
-        await User.findOneAndRemove({ _id: req.user.id })
+            // Removes profile
+            await Profile.findOneAndRemove({ user: req.user.id })
+            // Removes user
+            await User.findOneAndRemove({ _id: req.user.id })
 
         res.json({ msg: 'User deleted' })
         
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Server Error')
-    }
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).send('Server Error')
+        }
 });
+
+// Put api/profile/experience
+// Add profile experience
+// Private
+
+    router.put('/experience', [auth, [
+        check('title', 'Title is required').not().isEmpty(),
+        check('company', 'Company is required').not().isEmpty(),
+        check('from', 'From date is required').not().isEmpty()
+        ] 
+    ], 
+
+    async (req, res) => {
+        const errors = validationResult(req);
+        if(!errors.isEmpty()){
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const {
+            title, 
+            company, 
+            location, 
+            from, 
+            to, 
+            current, 
+            description
+        } = req.body
+
+        const newExp = {
+            title,
+            company,
+            location,
+            from,
+            to,
+            current,
+            description
+        }
+
+        try {
+            const profile = await Profile.findOne({ user: req.user.id });
+
+            profile.experience.unshift(newExp);
+
+            await profile.save();
+
+            res.json(profile);
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).send('Server Error')
+        }
+    })
 
 module.exports = router;
