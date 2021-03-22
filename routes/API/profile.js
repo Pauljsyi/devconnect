@@ -36,7 +36,29 @@ async (req, res) => {
     const error = validationResult(req);
     if(!errorFromList.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
-    }
+    } 
+
+    const {
+        company,
+        website,
+        location,
+        bio,
+        status,
+        githubusername,
+        skills,
+        youtube,
+        facebook,
+        twitter,
+        instagram,
+        linkedin
+    } = req.body;
+
+    // Build profile object
+    const profileFields = {};
+    profileFields.user = req.user.id;
+    if(company) profileFields.company = company;
+    if (website) profileFields.website = website;
+    if (location) profileFields.location = location
 });
 
 module.exports = router;
