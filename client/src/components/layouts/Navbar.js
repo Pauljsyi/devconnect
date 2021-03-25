@@ -11,8 +11,8 @@ const Navbar = () => {
       </h1>
       <ul>
         <li><a href="!#">Developers</a></li>
-        <li><Link to="register.html">Register</Link></li>
-        <li><Link to="login.html">Login</Link></li>
+        <li><Link to="register">Register</Link></li>
+        <li><Link to="login">Login</Link></li>
       </ul>
     </nav>
   )
